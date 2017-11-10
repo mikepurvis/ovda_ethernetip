@@ -236,6 +236,17 @@ void Session::getSingleAttributeSerializable(EIP_USINT class_id, EIP_USINT insta
   resp_data.getResponseDataAs(result);
 }
 
+void Session::getSingleAttributeSerializable(EIP_USINT class_id, EIP_USINT instance_id,
+  EIP_UINT attribute_id, Serializable& result)
+{
+  shared_ptr<Serializable> no_data;
+  RRDataResponse resp_data = sendRRDataCommand(0x0E,
+    Path(class_id, instance_id, attribute_id), no_data);
+
+  resp_data.getResponseDataAs(result);
+}
+
+
 void Session::setSingleAttributeSerializable(EIP_USINT class_id,
   EIP_USINT instance_id, EIP_USINT attribute_id, shared_ptr<Serializable> data)
 {

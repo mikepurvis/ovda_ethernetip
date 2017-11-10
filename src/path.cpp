@@ -27,6 +27,10 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 
 #include <boost/asio.hpp>
 
+#include <iostream>
+#include <unistd.h>
+#include <iomanip>
+
 namespace eip {
 
 Path::Path(bool pad_after_length) : pad_after_length_(pad_after_length)
@@ -41,19 +45,39 @@ Path::Path(EIP_USINT class_id, EIP_USINT instance_id, EIP_USINT attribute_id,
   addLogicalClass(class_id);
   addLogicalInstance(instance_id);
   addLogicalAttribute(attribute_id);
+  //this->print();
 }
+
+Path::Path(EIP_USINT class_id, EIP_USINT instance_id, EIP_UINT attribute_id,
+  bool pad_after_length) : pad_after_length_(pad_after_length)
+{
+  path_buf_.reserve(7);
+  addLogicalClass(class_id);
+  addLogicalInstance(instance_id);
+  addLogicalAttribute(attribute_id);
+  //this->print();
+}
+
 
 Path::Path(EIP_USINT class_id, EIP_USINT instance_id) : pad_after_length_(false)
 {
   path_buf_.reserve(4);
   addLogicalClass(class_id);
   addLogicalInstance(instance_id);
+  //this->print();
 }
 
 void Path::addSegment(EIP_USINT type, EIP_USINT data)
 {
   path_buf_.push_back(type);
   path_buf_.push_back(data);
+}
+
+void Path::addSegment(EIP_USINT type, EIP_UINT data)
+{
+  path_buf_.push_back(type);
+  path_buf_.push_back( (EIP_USINT)(data&0xff) );
+  path_buf_.push_back( (EIP_USINT)((data&0xff00)>>8) );
 }
 
 void Path::addLogicalClass(EIP_USINT class_id)
@@ -69,6 +93,11 @@ void Path::addLogicalInstance(EIP_USINT instance_id)
 void Path::addLogicalAttribute(EIP_USINT attribute_id)
 {
   addSegment(0x30, attribute_id);
+}
+
+void Path::addLogicalAttribute(EIP_UINT attribute_id)
+{
+  addSegment(0x31, attribute_id);
 }
 
 void Path::addLogicalConnectionPoint(EIP_USINT connection_id)
@@ -92,6 +121,17 @@ Writer& Path::serialize(Writer& writer, bool pad_after_length) const
   }
   writer.writeBuffer(boost::asio::buffer(path_buf_));
   return writer;
+}
+
+void Path::print() const
+{
+  std::cout << "PATH: ";
+  for (unsigned int ii=0; ii< path_buf_.size(); ii++)
+  {
+    std::cout << std::hex << std::setfill('0') << std::setw(2) << (unsigned short int)path_buf_.at(ii);
+	if ( (ii+1)%2 == 0 )  std::cout << " ";
+  }
+  std::cout << std::dec << std::endl;
 }
 
 } // namespace eip

@@ -69,6 +69,8 @@ public:
    */
   Path(EIP_USINT class_id, EIP_USINT instance_id, EIP_USINT attribute_id,
     bool pad_after_length = false);
+  Path(EIP_USINT class_id, EIP_USINT instance_id, EIP_UINT attribute_id,
+    bool pad_after_length = false);
 
   /**
    * Shortcut to construct a path to the given logical class instance
@@ -107,6 +109,7 @@ public:
    * @param attribute_id ID Number of attribute to add to path
    */
   void addLogicalAttribute(EIP_USINT attribute_id);
+  void addLogicalAttribute(EIP_UINT attribute_id);
 
   /**
    * Add a logical connection point segment
@@ -166,6 +169,11 @@ public:
     throw std::logic_error("Not implemented");
   }
 
+  /**
+   * Prints path bytes at std output
+   */
+  void print() const;
+
 private:
   bool pad_after_length_;
   vector<EIP_USINT> path_buf_;
@@ -176,6 +184,7 @@ private:
    * @param data Data to add to path
    */
   void addSegment(EIP_USINT type, EIP_USINT data);
+  void addSegment(EIP_USINT type, EIP_UINT data);
 };
 
 } // namespace eip

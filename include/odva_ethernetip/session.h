@@ -105,6 +105,8 @@ public:
    */
   void getSingleAttributeSerializable(EIP_USINT class_id, EIP_USINT instance_id,
     EIP_USINT attribute_id, Serializable& result);
+  void getSingleAttributeSerializable(EIP_USINT class_id, EIP_USINT instance_id,
+    EIP_UINT attribute_id, Serializable& result);
 
   /**
    * Shortcut to get a single attribute as a primitive type
@@ -115,6 +117,13 @@ public:
    */
   template <typename T>
   T getSingleAttribute(EIP_USINT class_id, EIP_USINT instance_id, EIP_USINT attribute_id, T v)
+  {
+    SerializablePrimitive<T> data;
+    getSingleAttributeSerializable(class_id, instance_id, attribute_id, data);
+    return data.data;
+  }
+  template <typename T>
+  T getSingleAttribute(EIP_USINT class_id, EIP_USINT instance_id, EIP_UINT attribute_id, T v)
   {
     SerializablePrimitive<T> data;
     getSingleAttributeSerializable(class_id, instance_id, attribute_id, data);
