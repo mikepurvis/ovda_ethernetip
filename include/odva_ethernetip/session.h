@@ -139,6 +139,8 @@ public:
    */
   void setSingleAttributeSerializable(EIP_USINT class_id, EIP_USINT instance_id,
     EIP_USINT attribute_id, shared_ptr<Serializable> data);
+  void setSingleAttributeSerializable(EIP_USINT class_id, EIP_USINT instance_id,
+    EIP_UINT attribute_id, shared_ptr<Serializable> data);
 
   /**
    * Shortcut to set a single attribute from a primitive type
@@ -150,6 +152,14 @@ public:
   template <typename T>
   void setSingleAttribute(EIP_USINT class_id, EIP_USINT instance_id,
     EIP_USINT attribute_id, T v)
+  {
+    shared_ptr< SerializablePrimitive<T> > data =
+      make_shared< SerializablePrimitive<T> > (v);
+    setSingleAttributeSerializable(class_id, instance_id, attribute_id, data);
+  }
+  template <typename T>
+  void setSingleAttribute(EIP_USINT class_id, EIP_USINT instance_id,
+    EIP_UINT attribute_id, T v)
   {
     shared_ptr< SerializablePrimitive<T> > data =
       make_shared< SerializablePrimitive<T> > (v);

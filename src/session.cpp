@@ -253,6 +253,12 @@ void Session::setSingleAttributeSerializable(EIP_USINT class_id,
   RRDataResponse resp_data = sendRRDataCommand(0x10,
     Path(class_id, instance_id, attribute_id), data);
 }
+void Session::setSingleAttributeSerializable(EIP_USINT class_id,
+  EIP_USINT instance_id, EIP_UINT attribute_id, shared_ptr<Serializable> data)
+{
+  RRDataResponse resp_data = sendRRDataCommand(0x10,
+    Path(class_id, instance_id, attribute_id), data);
+}
 
 RRDataResponse Session::sendRRDataCommand(EIP_USINT service, const Path& path,
   shared_ptr<Serializable> data)
