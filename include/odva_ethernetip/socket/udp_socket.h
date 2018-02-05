@@ -46,8 +46,8 @@ class UDPSocket : public Socket
 {
 public:
 
-  UDPSocket(io_service& io_serv, unsigned short local_port)
-    : socket_(io_serv), local_endpoint_(udp::v4(), local_port) { }
+  UDPSocket(io_service& io_serv, unsigned short local_port, std::string local_ip="0.0.0.0")
+    : socket_(io_serv), local_endpoint_(boost::asio::ip::address::from_string(local_ip), local_port) { }
 
   /**
    * Open the socket to connect to the given hostname and port
