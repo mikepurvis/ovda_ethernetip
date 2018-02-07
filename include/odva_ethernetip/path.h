@@ -27,6 +27,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #define ODVA_ETHERNETIP_PATH_H
 
 #include <vector>
+#include <iostream>
+#include <iomanip>
 
 #include "odva_ethernetip/eip_types.h"
 #include "odva_ethernetip/serialization/reader.h"
@@ -170,9 +172,21 @@ public:
   }
 
   /**
-   * Prints path bytes at std output
+   * Prints path bytes to a given output stream
    */
-  void print() const;
+  friend std::ostream& operator<<(std::ostream& os, const Path& p)
+  {
+	os << "PATH: ";
+	os.setf(std::ios_base::hex , std::ios_base::basefield);
+	for (unsigned int ii=0; ii< p.path_buf_.size(); ii++)
+	{
+		os << std::setw(2) << std::setfill('0') << (unsigned short int)p.path_buf_.at(ii);
+		if ( (ii+1)%2 == 0 )  os << " ";
+	}
+	os << std::endl;
+	os.setf(std::ios_base::dec , std::ios_base::basefield);
+	return os;
+  }
 
 private:
   bool pad_after_length_;
