@@ -90,7 +90,7 @@ TEST_F(BufferWriterTest, test_write_bytes)
 TEST_F(BufferWriterTest, test_write_bytes_short_buffer)
 {
   char d[7];
-  char input[] = { 0xFF, 0xFE, 0xFD, 0xFC, 0xFB, 0xFA, 0x12, 0x34 };
+  unsigned char input[] = { 0xFF, 0xFE, 0xFD, 0xFC, 0xFB, 0xFA, 0x12, 0x34 };
   shared_ptr<Writer> writer = make_shared<BufferWriter>(buffer(d));
   ASSERT_THROW(writer->writeBytes(input, sizeof(input)), std::length_error);
 }

@@ -65,7 +65,7 @@ protected:
 
 TEST_F(SessionTest, test_open)
 {
-  char resp_packet[] = {
+  unsigned char resp_packet[] = {
     // command for register session
     0x65, 0x00,
     // length
@@ -280,7 +280,7 @@ TEST_F(SessionTest, test_open_short_data)
 
 TEST_F(SessionTest, test_open_extra_data)
 {
-  char resp_packet[] = {
+  unsigned char resp_packet[] = {
     // command for register session
     0x65, 0x00,
     // length
@@ -309,7 +309,7 @@ TEST_F(SessionTest, test_open_extra_data)
 
 TEST_F(SessionTest, test_open_wrong_version)
 {
-  char resp_packet[] = {
+  unsigned char resp_packet[] = {
     // command for register session
     0x65, 0x00,
     // length
@@ -339,7 +339,7 @@ TEST_F(SessionTest, test_open_wrong_version)
 
 TEST_F(SessionTest, test_get_single_attribute)
 {
-  char reg_resp_packet[] = {
+  unsigned char reg_resp_packet[] = {
     // command for register session
     0x65, 0x00,
     // length
@@ -369,7 +369,7 @@ TEST_F(SessionTest, test_get_single_attribute)
   ts->tx_count = 0;
   memset(ts->tx_buffer, 0, sizeof(ts->tx_count));
 
-  char resp_packet[] = {
+  unsigned char resp_packet[] = {
     // command for register session
     0x6F, 0x00,
     // length
@@ -388,7 +388,7 @@ TEST_F(SessionTest, test_get_single_attribute)
     0, 0,
     // item count
     2, 0,
-    // adress type
+    // address type
     0, 0,
     // address length
     0, 0,
@@ -455,7 +455,7 @@ TEST_F(SessionTest, test_get_single_attribute)
   // item count
   EXPECT_EQ(   2, ts->tx_buffer[30]);
   EXPECT_EQ(   0, ts->tx_buffer[31]);
-  // adress type null
+  // address type null
   EXPECT_EQ(   0, ts->tx_buffer[32]);
   EXPECT_EQ(   0, ts->tx_buffer[33]);
   // address length 0
@@ -484,7 +484,7 @@ TEST_F(SessionTest, test_get_single_attribute)
 
 TEST_F(SessionTest, test_set_single_attribute)
 {
-  char reg_resp_packet[] = {
+  unsigned char reg_resp_packet[] = {
     // command for register session
     0x65, 0x00,
     // length
@@ -514,7 +514,7 @@ TEST_F(SessionTest, test_set_single_attribute)
   ts->tx_count = 0;
   memset(ts->tx_buffer, 0, sizeof(ts->tx_count));
 
-  char resp_packet[] = {
+  unsigned char resp_packet[] = {
     // command for RR Data
     0x6F, 0x00,
     // length
@@ -533,7 +533,7 @@ TEST_F(SessionTest, test_set_single_attribute)
     0, 0,
     // item count
     2, 0,
-    // adress type
+    // address type
     0, 0,
     // address length
     0, 0,
@@ -598,7 +598,7 @@ TEST_F(SessionTest, test_set_single_attribute)
   // item count
   EXPECT_EQ(   2, ts->tx_buffer[30]);
   EXPECT_EQ(   0, ts->tx_buffer[31]);
-  // adress type null
+  // address type null
   EXPECT_EQ(   0, ts->tx_buffer[32]);
   EXPECT_EQ(   0, ts->tx_buffer[33]);
   // address length 0
@@ -628,7 +628,7 @@ TEST_F(SessionTest, test_set_single_attribute)
 
 TEST_F(SessionTest, test_create_connection)
 {
-  char reg_resp_packet[] = {
+  unsigned char reg_resp_packet[] = {
     // command for register session
     0x65, 0x00,
     // length
@@ -658,7 +658,7 @@ TEST_F(SessionTest, test_create_connection)
   ts->tx_count = 0;
   memset(ts->tx_buffer, 0, sizeof(ts->tx_count));
 
-  char resp_packet[] = {
+  unsigned char resp_packet[] = {
     // command for RR Data
     0x6F, 0x00,
     // length
@@ -677,7 +677,7 @@ TEST_F(SessionTest, test_create_connection)
     0, 0,
     // item count
     2, 0,
-    // adress type
+    // address type
     0, 0,
     // address length
     0, 0,
@@ -766,7 +766,7 @@ TEST_F(SessionTest, test_create_connection)
   // item count
   EXPECT_EQ(   2, ts->tx_buffer[30]);
   EXPECT_EQ(   0, ts->tx_buffer[31]);
-  // adress type null
+  // address type null
   EXPECT_EQ(   0, ts->tx_buffer[32]);
   EXPECT_EQ(   0, ts->tx_buffer[33]);
   // address length 0
@@ -854,7 +854,7 @@ TEST_F(SessionTest, test_create_connection)
   EXPECT_EQ(0x00025CD8, session.connections_[0].t_to_o_api);
   // TODO: verify path ?
 
-  char close_resp_packet[] = {
+  unsigned char close_resp_packet[] = {
     0x6F, 0x00, 0x1E, 0x00, 0xEF, 0xBE, 0xAD, 0xDE,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -953,7 +953,7 @@ TEST_F(SessionTest, test_create_connection)
 
 TEST_F(SessionTest, test_receive_io_packet)
 {
-  char io_packet[] = {
+  unsigned char io_packet[] = {
     0x02, 0x00, 0x02, 0x80, 0x08, 0x00, 0x04, 0x00,
     0x02, 0x00, 0x15, 0x00, 0x00, 0x00, 0xB1, 0x00,
     0x62, 0x00, 0xA1, 0x00, 0x76, 0x53, 0x04, 0x00,
