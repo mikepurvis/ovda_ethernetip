@@ -27,6 +27,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #define ODVA_ETHERNETIP_IO_SCANNER_H
 
 #include <string>
+#include <boost/array.hpp>
 #include <boost/asio.hpp>
 
 #include "odva_ethernetip/eip_types.h"
