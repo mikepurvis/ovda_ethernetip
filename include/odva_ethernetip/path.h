@@ -27,6 +27,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #define ODVA_ETHERNETIP_PATH_H
 
 #include <vector>
+#include <iostream>
+#include <iomanip>
 
 #include "odva_ethernetip/eip_types.h"
 #include "odva_ethernetip/serialization/reader.h"
@@ -69,6 +71,8 @@ public:
    */
   Path(EIP_USINT class_id, EIP_USINT instance_id, EIP_USINT attribute_id,
     bool pad_after_length = false);
+  Path(EIP_USINT class_id, EIP_USINT instance_id, EIP_UINT attribute_id,
+    bool pad_after_length = false);
 
   /**
    * Shortcut to construct a path to the given logical class instance
@@ -107,6 +111,7 @@ public:
    * @param attribute_id ID Number of attribute to add to path
    */
   void addLogicalAttribute(EIP_USINT attribute_id);
+  void addLogicalAttribute(EIP_UINT attribute_id);
 
   /**
    * Add a logical connection point segment
@@ -166,6 +171,23 @@ public:
     throw std::logic_error("Not implemented");
   }
 
+  /**
+   * Prints path bytes to a given output stream
+   */
+  friend std::ostream& operator<<(std::ostream& os, const Path& p)
+  {
+	os << "PATH: ";
+	os.setf(std::ios_base::hex , std::ios_base::basefield);
+	for (unsigned int ii=0; ii< p.path_buf_.size(); ii++)
+	{
+		os << std::setw(2) << std::setfill('0') << (unsigned short int)p.path_buf_.at(ii);
+		if ( (ii+1)%2 == 0 )  os << " ";
+	}
+	os << std::endl;
+	os.setf(std::ios_base::dec , std::ios_base::basefield);
+	return os;
+  }
+
 private:
   bool pad_after_length_;
   vector<EIP_USINT> path_buf_;
@@ -176,6 +198,7 @@ private:
    * @param data Data to add to path
    */
   void addSegment(EIP_USINT type, EIP_USINT data);
+  void addSegment(EIP_USINT type, EIP_UINT data);
 };
 
 } // namespace eip

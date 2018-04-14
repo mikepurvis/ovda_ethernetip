@@ -43,6 +43,16 @@ Path::Path(EIP_USINT class_id, EIP_USINT instance_id, EIP_USINT attribute_id,
   addLogicalAttribute(attribute_id);
 }
 
+Path::Path(EIP_USINT class_id, EIP_USINT instance_id, EIP_UINT attribute_id,
+  bool pad_after_length) : pad_after_length_(pad_after_length)
+{
+  path_buf_.reserve(7);
+  addLogicalClass(class_id);
+  addLogicalInstance(instance_id);
+  addLogicalAttribute(attribute_id);
+}
+
+
 Path::Path(EIP_USINT class_id, EIP_USINT instance_id) : pad_after_length_(false)
 {
   path_buf_.reserve(4);
@@ -54,6 +64,13 @@ void Path::addSegment(EIP_USINT type, EIP_USINT data)
 {
   path_buf_.push_back(type);
   path_buf_.push_back(data);
+}
+
+void Path::addSegment(EIP_USINT type, EIP_UINT data)
+{
+  path_buf_.push_back(type);
+  path_buf_.push_back( (EIP_USINT)(data&0xff) );
+  path_buf_.push_back( (EIP_USINT)((data&0xff00)>>8) );
 }
 
 void Path::addLogicalClass(EIP_USINT class_id)
@@ -69,6 +86,11 @@ void Path::addLogicalInstance(EIP_USINT instance_id)
 void Path::addLogicalAttribute(EIP_USINT attribute_id)
 {
   addSegment(0x30, attribute_id);
+}
+
+void Path::addLogicalAttribute(EIP_UINT attribute_id)
+{
+  addSegment(0x31, attribute_id);
 }
 
 void Path::addLogicalConnectionPoint(EIP_USINT connection_id)

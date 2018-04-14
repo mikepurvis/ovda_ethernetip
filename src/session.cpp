@@ -60,8 +60,7 @@ Session::Session(shared_ptr<Socket> socket, shared_ptr<Socket> io_socket,
   boost::random::uniform_int_distribution<> dist(0, 0xFFFF);
   next_connection_id_ = gen();
   next_connection_sn_ = dist(gen);
-  cout << "Generated starting connection ID " << next_connection_id_
-    << " and SN " << next_connection_sn_ << endl;;
+  //cout << "Generated starting connection ID " << next_connection_id_ << " and SN " << next_connection_sn_ << endl;;
 }
 
 Session::~Session()
@@ -81,12 +80,12 @@ Session::~Session()
 
 void Session::open(string hostname, string port, string io_port)
 {
-  cout << "Resolving hostname and connecting socket" << endl;
+  //cout << "Resolving hostname and connecting socket" << endl;
   socket_->open(hostname, port);
   io_socket_->open(hostname, io_port);
 
   // create the registration message
-  cout << "Creating and sending the registration message" << endl;
+  //cout << "Creating and sending the registration message" << endl;
   shared_ptr<RegisterSessionData> reg_data = make_shared<RegisterSessionData>();
   EncapPacket reg_msg(EIP_CMD_REGISTER_SESSION, 0, reg_data);
 
@@ -149,7 +148,7 @@ void Session::open(string hostname, string port, string io_port)
   }
 
   session_id_ = response.getHeader().session_handle;
-  cout << "Successfully opened session ID " << session_id_ << endl;
+  //cout << "Successfully opened session ID " << session_id_ << endl;
 }
 
 void Session::close()
@@ -170,12 +169,12 @@ void Session::close()
 
 EncapPacket Session::sendCommand(EncapPacket& req)
 {
-  cout << "Sending Command" << endl;
+  //cout << "Sending Command" << endl;
   socket_->send(req);
 
-  cout << "Waiting for response" << endl;
+  //cout << "Waiting for response" << endl;
   size_t n = socket_->receive(buffer(recv_buffer_));
-  cout << "Received response of " << n << " bytes" << endl;
+  //cout << "Received response of " << n << " bytes" << endl;
 
   BufferReader reader(buffer(recv_buffer_, n));
   EncapPacket result;
@@ -237,8 +236,25 @@ void Session::getSingleAttributeSerializable(EIP_USINT class_id, EIP_USINT insta
   resp_data.getResponseDataAs(result);
 }
 
+void Session::getSingleAttributeSerializable(EIP_USINT class_id, EIP_USINT instance_id,
+  EIP_UINT attribute_id, Serializable& result)
+{
+  shared_ptr<Serializable> no_data;
+  RRDataResponse resp_data = sendRRDataCommand(0x0E,
+    Path(class_id, instance_id, attribute_id), no_data);
+
+  resp_data.getResponseDataAs(result);
+}
+
+
 void Session::setSingleAttributeSerializable(EIP_USINT class_id,
   EIP_USINT instance_id, EIP_USINT attribute_id, shared_ptr<Serializable> data)
+{
+  RRDataResponse resp_data = sendRRDataCommand(0x10,
+    Path(class_id, instance_id, attribute_id), data);
+}
+void Session::setSingleAttributeSerializable(EIP_USINT class_id,
+  EIP_USINT instance_id, EIP_UINT attribute_id, shared_ptr<Serializable> data)
 {
   RRDataResponse resp_data = sendRRDataCommand(0x10,
     Path(class_id, instance_id, attribute_id), data);
@@ -247,7 +263,7 @@ void Session::setSingleAttributeSerializable(EIP_USINT class_id,
 RRDataResponse Session::sendRRDataCommand(EIP_USINT service, const Path& path,
   shared_ptr<Serializable> data)
 {
-  cout << "Creating RR Data Request" << endl;
+  //cout << "Creating RR Data Request" << endl;
   shared_ptr<RRDataRequest> req_data =
     make_shared<RRDataRequest> (service, path, data);
   EncapPacket encap_pkt(EIP_CMD_SEND_RR_DATA, session_id_, req_data);
