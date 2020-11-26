@@ -222,7 +222,7 @@ void Session::check_packet(EncapPacket& pkt, EIP_UINT exp_cmd)
 
 void Session::getSingleAttributeSerializable(EIP_USINT class_id, EIP_USINT instance_id,
   EIP_USINT attribute_id, Serializable& result)
-{
+{  
   shared_ptr<Serializable> no_data;
   RRDataResponse resp_data = sendRRDataCommand(0x0E,
     Path(class_id, instance_id, attribute_id), no_data);
