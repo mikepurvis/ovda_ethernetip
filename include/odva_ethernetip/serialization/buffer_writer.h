@@ -76,7 +76,7 @@ public:
     using boost::asio::buffer_size;
     if (buffer_size(buf_) < buffer_size(b))
     {
-      throw std::length_error("Buffer to small to serialize value");
+      throw std::length_error("Buffer too small to serialize value");
     }
     boost::asio::buffer_copy(buf_, b);
     byte_count_ += buffer_size(b);

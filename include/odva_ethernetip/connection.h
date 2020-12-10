@@ -66,12 +66,43 @@ public:
   EIP_UINT o_to_t_buffer_size;
   EIP_UINT t_to_o_buffer_size;
 
+  bool o_to_t_variable_size;
+  bool t_to_o_variable_size;
+
+  CONN_PRIORITY_T o_to_t_priority;
+  CONN_PRIORITY_T t_to_o_priority;
+
+  CONN_TYPE_T o_to_t_type;
+  CONN_TYPE_T t_to_o_type;
+
+  bool o_to_t_shared;
+  bool t_to_o_shared;
+
+  EIP_BYTE connection_type_;
+
   /**
    * Create a connection instance using the directional values and reasonable defaults
    * @param o_to_t Originator to Target info
    * @param t_to_o Target to Originator info
    */
   Connection(const EIP_CONNECTION_INFO_T& o_to_t, const EIP_CONNECTION_INFO_T& t_to_o);
+
+  /**
+   * Create a connection instance using the directional values and reasonable defaults
+   * @param o_to_t Originator to Target info
+   * @param t_to_o Target to Originator info
+   * @param connection_type Byte
+   */
+  Connection(const EIP_CONNECTION_INFO_T& o_to_t, const EIP_CONNECTION_INFO_T& t_to_o, EIP_BYTE connection_type);
+
+  /**
+   * Create a connection instance using the directional values and reasonable defaults
+   * @param o_to_t Originator to Target info
+   * @param t_to_o Target to Originator info
+   * @param connection_type Byte
+   * @param path Path already containing segments
+   */
+  Connection(const EIP_CONNECTION_INFO_T& o_to_t, const EIP_CONNECTION_INFO_T& t_to_o, EIP_BYTE connection_type, const Path *path);
 
   /**
    * Get the path in the given message router request
@@ -92,7 +123,17 @@ public:
   /**
    * Create the forward open request from the data in this connection object
    */
-  shared_ptr<ForwardOpenRequest> createForwardOpenRequest();
+  shared_ptr<ForwardOpenRequest> createForwardOpenRequest()
+  {
+    // Maintains backwards compatability
+    return createForwardOpenRequest(false);
+  }
+
+  /**
+   * Create the forward open request from the data in this connection object
+   * @param use_legacy_forward_open_request use 16 bit connection parameters instead of news 32 bit parameters
+   */
+  shared_ptr<ForwardOpenRequest> createForwardOpenRequest(bool use_legacy_forward_open_request);
 
   /**
    * Create a forward close request from the data in this connection object

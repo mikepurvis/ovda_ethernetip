@@ -34,6 +34,16 @@ using boost::make_shared;
 namespace eip {
 
 Connection::Connection(const EIP_CONNECTION_INFO_T& o_to_t, const EIP_CONNECTION_INFO_T& t_to_o)
+  : Connection(o_to_t, t_to_o, 1, NULL)
+{
+}
+
+Connection::Connection(const EIP_CONNECTION_INFO_T& o_to_t, const EIP_CONNECTION_INFO_T& t_to_o, EIP_BYTE connection_type)
+  : Connection(o_to_t, t_to_o, connection_type, NULL)
+{
+}
+
+Connection::Connection(const EIP_CONNECTION_INFO_T& o_to_t, const EIP_CONNECTION_INFO_T& t_to_o, EIP_BYTE connection_type, const Path *path)
 {
   o_to_t_rpi = o_to_t.rpi;
   t_to_o_rpi = t_to_o.rpi;
@@ -42,9 +52,45 @@ Connection::Connection(const EIP_CONNECTION_INFO_T& o_to_t, const EIP_CONNECTION
   timeout_tick_size = 6;
   timeout_ticks = 80;
   timeout_multiplyer = 0;
+  if (const EIP_CONNECTION_INFO_ADVANCED_T* o_to_t_advanced = dynamic_cast<const EIP_CONNECTION_INFO_ADVANCED_T*>(&o_to_t))
+  {
+    o_to_t_variable_size = o_to_t_advanced->variable_size;
+    o_to_t_priority = o_to_t_advanced->priority;
+    o_to_t_type = o_to_t_advanced->type;
+    o_to_t_shared = o_to_t_advanced->shared;
+  }
+  else
+  {
+    o_to_t_variable_size = false;
+    o_to_t_priority = CONN_PRIORITY_SCHEDULED;
+    o_to_t_type = CONN_TYPE_P2P;
+    o_to_t_shared = false;
+  }
+  if (const EIP_CONNECTION_INFO_ADVANCED_T* t_to_o_advanced = dynamic_cast<const EIP_CONNECTION_INFO_ADVANCED_T*>(&t_to_o))
+  {
+    t_to_o_variable_size = t_to_o_advanced->variable_size;
+    t_to_o_priority = t_to_o_advanced->priority;
+    t_to_o_type = t_to_o_advanced->type;
+    t_to_o_shared = t_to_o_advanced->shared;
+  }
+  else
+  {
+    t_to_o_variable_size = true;
+    t_to_o_priority = CONN_PRIORITY_SCHEDULED;
+    t_to_o_type = CONN_TYPE_P2P;
+    t_to_o_shared = false;
+  }
   o_to_t_api = 0;
   t_to_o_api = 0;
-  setConnectionPoints(o_to_t.assembly_id, t_to_o.assembly_id);
+  connection_type_ = connection_type;
+  if (path == NULL)
+  {
+    setConnectionPoints(o_to_t.assembly_id, t_to_o.assembly_id);
+  }
+  else
+  {
+    path_ = *path;
+  }
 }
 
 void Connection::setConnectionPoints(EIP_USINT origin, EIP_USINT target)
@@ -56,9 +102,9 @@ void Connection::setConnectionPoints(EIP_USINT origin, EIP_USINT target)
   path_.addLogicalConnectionPoint(target);
 }
 
-shared_ptr<ForwardOpenRequest> Connection::createForwardOpenRequest()
+shared_ptr<ForwardOpenRequest> Connection::createForwardOpenRequest(bool use_legacy_forward_open_request)
 {
-  shared_ptr<ForwardOpenRequest> req = make_shared<ForwardOpenRequest> ();
+  shared_ptr<ForwardOpenRequest> req = make_shared<ForwardOpenRequest> (use_legacy_forward_open_request);
 
   req->originator_vendor_id = originator_vendor_id;
   req->originator_sn = originator_sn;
@@ -73,11 +119,10 @@ shared_ptr<ForwardOpenRequest> Connection::createForwardOpenRequest()
 
   req->o_to_t_rpi = o_to_t_rpi;
   req->t_to_o_rpi = t_to_o_rpi;
-  req->conn_type = 1;
+  req->conn_type = connection_type_;
 
-  // TODO: need connection size info here
-  req->setOriginToTargetParams(o_to_t_buffer_size, false, CONN_PRIORITY_SCHEDULED, CONN_TYPE_P2P, false);
-  req->setTargetToOriginParams(t_to_o_buffer_size, true, CONN_PRIORITY_SCHEDULED, CONN_TYPE_P2P, false);
+  req->setOriginToTargetParams(o_to_t_buffer_size, o_to_t_variable_size, o_to_t_priority, o_to_t_type, o_to_t_shared);
+  req->setTargetToOriginParams(t_to_o_buffer_size, t_to_o_variable_size, t_to_o_priority, t_to_o_type, t_to_o_shared);
 
   req->getPath() = path_;
   return req;

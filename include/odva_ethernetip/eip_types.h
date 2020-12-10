@@ -94,8 +94,25 @@ typedef enum
   EIP_ITEM_SEQ_ADDRESS                = 0x8002,
 } EIP_ITEM_T;
 
+typedef enum
+{
+  CONN_PRIORITY_LOW       = 0,
+  CONN_PRIORITY_HIGH      = 1,
+  CONN_PRIORITY_SCHEDULED = 2,
+  CONN_PRIORITY_URGENT    = 3,
+} CONN_PRIORITY_T;
+
+typedef enum
+{
+  CONN_TYPE_NULL      = 0,
+  CONN_TYPE_MULTICAST = 1,
+  CONN_TYPE_P2P       = 2,
+  CONN_TYPE_RESERVED  = 3,
+} CONN_TYPE_T;
+
 typedef struct
 {
+  virtual void f() {}; // This allows dynamic_cast
   /// Assembly ID for this endpoint of the connection
   EIP_USINT assembly_id;
   /// Buffer size to be used for routing
@@ -103,5 +120,17 @@ typedef struct
   /// Request packet interval
   EIP_UDINT rpi;
 } EIP_CONNECTION_INFO_T;
+
+typedef struct _EIP_CONNECTION_INFO_ADVANCED_T : EIP_CONNECTION_INFO_T
+{
+  // Variable Size: default o_to_t false, default t_to_o true
+  bool variable_size;
+  // Priority: default CONN_PRIORITY_SCHEDULED
+  CONN_PRIORITY_T priority;
+  //Connection Type: default CONN_TYPE_P2P
+  CONN_TYPE_T type;
+  // Connection Type: default false
+  bool shared;
+} EIP_CONNECTION_INFO_ADVANCED_T;
 
 #endif  // ODVA_ETHERNETIP_EIP_TYPES_H

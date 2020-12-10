@@ -158,6 +158,11 @@ void Session::close()
 
   CONSOLE_BRIDGE_logInform("Session closed");
 
+  closeWithoutUnregister();
+}
+
+void Session::closeWithoutUnregister()
+{
   socket_->close();
   io_socket_->close();
   session_id_ = 0;
@@ -237,6 +242,28 @@ void Session::setSingleAttributeSerializable(EIP_USINT class_id,
     Path(class_id, instance_id, attribute_id), data);
 }
 
+RRDataResponse Session::getExtendedSymbolSerializable(EIP_USINT service, std::string extended_symbol, shared_ptr<Serializable> data, Serializable& result)
+{
+  RRDataResponse resp_data = setExtendedSymbolSerializable(service, extended_symbol, data);
+
+  resp_data.getResponseDataAs(result);
+
+  return resp_data;
+}
+
+RRDataResponse Session::setExtendedSymbolSerializable(EIP_USINT service, std::string extended_symbol, shared_ptr<Serializable> data)
+{
+  Path path(false);
+  std::vector<EIP_USINT> extended_symbol_vector;
+  for (auto c: extended_symbol)
+  {
+    extended_symbol_vector.push_back((EIP_USINT) c);
+  }
+  path.addData(extended_symbol_vector);
+
+  return sendRRDataCommand(service, path, data);
+}
+
 RRDataResponse Session::sendRRDataCommand(EIP_USINT service, const Path& path,
   shared_ptr<Serializable> data)
 {
@@ -293,18 +320,18 @@ RRDataResponse Session::sendRRDataCommand(EIP_USINT service, const Path& path,
   return resp_data;
 }
 
-int Session::createConnection(const EIP_CONNECTION_INFO_T& o_to_t,
-  const EIP_CONNECTION_INFO_T& t_to_o)
+int Session::createConnection(Connection conn,
+  EIP_USINT service,
+  bool use_legacy_forward_open_request)
 {
-  Connection conn(o_to_t, t_to_o);
   conn.originator_vendor_id = my_vendor_id_;
   conn.originator_sn = my_serial_num_;
   conn.connection_sn = next_connection_sn_++;
   conn.o_to_t_connection_id = next_connection_id_++;
   conn.t_to_o_connection_id = next_connection_id_++;
 
-  shared_ptr<ForwardOpenRequest> req = conn.createForwardOpenRequest();
-  RRDataResponse resp_data = sendRRDataCommand(0x5B, Path(0x06, 1), req);
+  shared_ptr<ForwardOpenRequest> req = conn.createForwardOpenRequest(use_legacy_forward_open_request);
+  RRDataResponse resp_data = sendRRDataCommand(service, Path(0x06, 1), req);
   ForwardOpenSuccess result;
   resp_data.getResponseDataAs(result);
   if (!conn.verifyForwardOpenResult(result))

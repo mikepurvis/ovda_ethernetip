@@ -91,6 +91,18 @@ public:
   }
 
   /**
+   * Add a port segment
+   * @param link_id ID Number of port's link address id to add to path
+   */
+  void addPort(EIP_USINT link_id);
+
+  /**
+   * Add a port segment
+   * @param data data vector to add to path
+   */
+  void addData(std::vector<EIP_USINT> data);
+
+  /**
    * Add a logical class segment
    * @param class_id ID Number of class to add to path
    */

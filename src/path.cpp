@@ -56,6 +56,18 @@ void Path::addSegment(EIP_USINT type, EIP_USINT data)
   path_buf_.push_back(data);
 }
 
+void Path::addPort(EIP_USINT link_id)
+{
+  addSegment(0x01, link_id);
+}
+
+void Path::addData(std::vector<EIP_USINT> data)
+{
+  path_buf_.push_back(0x91);
+  path_buf_.push_back(data.size());
+  path_buf_.insert(path_buf_.end(), data.begin(), data.end());
+}
+
 void Path::addLogicalClass(EIP_USINT class_id)
 {
   addSegment(0x20, class_id);

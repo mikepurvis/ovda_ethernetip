@@ -1,0 +1,5 @@
+.ci_config
+
+# Vim
+.*.swp
+.*.swo

@@ -88,6 +88,11 @@ public:
   void close();
 
   /**
+   * Close the session without unregistering the session and just closing the port
+   */
+  void closeWithoutUnregister();
+
+  /**
    * Get the ID number assigned to this session by the target
    * @return session ID number
    */
@@ -95,6 +100,27 @@ public:
   {
     return session_id_;
   }
+
+  /**
+   * Get data from the given service / extended symbol / path
+   * @param service Service ID
+   * @param extended_symbol string for register name
+   * @param data <shared_ptr<Serializable> Command Specific Data to send
+   * @param result Serializable that will accept the result
+   * @return RRDataResponse
+   */
+  RRDataResponse getExtendedSymbolSerializable(EIP_USINT service, std::string extended_symbol,
+    shared_ptr<Serializable> data, Serializable& result);
+
+  /**
+   * Set data to the given service / extended symbol / path
+   * @param service Service ID
+   * @param extended_symbol string for register name
+   * @param data <shared_ptr<Serializable> Command Specific Data to send
+   * @return RRDataResponse
+   */
+  RRDataResponse setExtendedSymbolSerializable(EIP_USINT service, std::string extended_symbol,
+    shared_ptr<Serializable> data);
 
   /**
    * Get a single attribute from the given class / instance / attribute path
@@ -153,7 +179,48 @@ public:
    * @param t_to_o Target to origin connection info
    */
   int createConnection(const EIP_CONNECTION_INFO_T& o_to_t,
-    const EIP_CONNECTION_INFO_T& t_to_o);
+    const EIP_CONNECTION_INFO_T& t_to_o)
+  {
+    // Maintains backwards compatability
+    return createConnection(o_to_t, t_to_o, 0x5B, false);
+  }
+
+  /**
+   * Create an Ethernet/IP Connection for sending implicit messages
+   * @param o_to_t Origin to target connection info
+   * @param t_to_o Target to origin connection info
+   * @param service Service code to send
+   * @param use_legacy_forward_open_request use 16 bit connection parameters instead of news 32 bit parameters
+   */
+  int createConnection(const EIP_CONNECTION_INFO_T& o_to_t,
+    const EIP_CONNECTION_INFO_T& t_to_o,
+    EIP_USINT service,
+    bool use_legacy_forward_open_request)
+  {
+    Connection conn(o_to_t, t_to_o);
+    return createConnection(conn, service, use_legacy_forward_open_request);
+  }
+
+  /**
+   * Create an Ethernet/IP Connection for sending implicit messages
+   * @param conn Connection setup with t_to_o, o_to_t and path
+   */
+  int createConnection(Connection conn)
+  {
+    // Maintains backwards compatability
+    return createConnection(conn, 0x5B, false);
+  }
+
+  /**
+   * Create an Ethernet/IP Connection for sending implicit messages
+   * @param o_to_t Origin to target connection info
+   * @param t_to_o Target to origin connection info
+   * @param service Service code to send
+   * @param use_legacy_forward_open_request use 16 bit connection parameters instead of news 32 bit parameters
+   */
+  int createConnection(Connection conn,
+    EIP_USINT service,
+    bool use_legacy_forward_open_request);
 
   /**
    * Close the given connection number
