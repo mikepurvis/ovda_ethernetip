@@ -92,7 +92,17 @@ public:
   /**
    * Create the forward open request from the data in this connection object
    */
-  shared_ptr<ForwardOpenRequest> createForwardOpenRequest();
+  shared_ptr<ForwardOpenRequest> createForwardOpenRequest()
+  {
+    // Maintains backwards compatability
+    return createForwardOpenRequest(false);
+  }
+
+  /**
+   * Create the forward open request from the data in this connection object
+   * @param use_legacy_forward_open_request use 16 bit connection parameters instead of news 32 bit parameters
+   */
+  shared_ptr<ForwardOpenRequest> createForwardOpenRequest(bool use_legacy_forward_open_request);
 
   /**
    * Create a forward close request from the data in this connection object

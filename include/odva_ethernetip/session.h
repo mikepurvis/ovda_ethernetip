@@ -88,6 +88,11 @@ public:
   void close();
 
   /**
+   * Close the session without unregistering the session and just closing the port
+   */
+  void closeWithoutUnregister();
+
+  /**
    * Get the ID number assigned to this session by the target
    * @return session ID number
    */
@@ -153,7 +158,23 @@ public:
    * @param t_to_o Target to origin connection info
    */
   int createConnection(const EIP_CONNECTION_INFO_T& o_to_t,
-    const EIP_CONNECTION_INFO_T& t_to_o);
+    const EIP_CONNECTION_INFO_T& t_to_o)
+  {
+    // Maintains backwards compatability
+    return createConnection(o_to_t, t_to_o, 0x5B, false);
+  }
+
+  /**
+   * Create an Ethernet/IP Connection for sending implicit messages
+   * @param o_to_t Origin to target connection info
+   * @param t_to_o Target to origin connection info
+   * @param service Service code to send
+   * @param use_legacy_forward_open_request use 16 bit connection parameters instead of news 32 bit parameters
+   */
+  int createConnection(const EIP_CONNECTION_INFO_T& o_to_t,
+    const EIP_CONNECTION_INFO_T& t_to_o,
+    EIP_USINT service,
+    bool use_legacy_forward_open_request);
 
   /**
    * Close the given connection number

@@ -56,9 +56,9 @@ void Connection::setConnectionPoints(EIP_USINT origin, EIP_USINT target)
   path_.addLogicalConnectionPoint(target);
 }
 
-shared_ptr<ForwardOpenRequest> Connection::createForwardOpenRequest()
+shared_ptr<ForwardOpenRequest> Connection::createForwardOpenRequest(bool use_legacy_forward_open_request)
 {
-  shared_ptr<ForwardOpenRequest> req = make_shared<ForwardOpenRequest> ();
+  shared_ptr<ForwardOpenRequest> req = make_shared<ForwardOpenRequest> (use_legacy_forward_open_request);
 
   req->originator_vendor_id = originator_vendor_id;
   req->originator_sn = originator_sn;

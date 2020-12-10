@@ -77,12 +77,26 @@ public:
   EIP_USINT timeout_multiplyer;
   EIP_UDINT o_to_t_rpi;
   EIP_DWORD o_to_t_conn_params;
+  EIP_WORD o_to_t_conn_params_legacy;
   EIP_UDINT t_to_o_rpi;
   EIP_DWORD t_to_o_conn_params;
+  EIP_WORD t_to_o_conn_params_legacy;
   EIP_BYTE conn_type;
 
+  bool use_legacy_forward_open_request;
+
+  ForwardOpenRequest()
+    : use_legacy_forward_open_request(false)
+  {
+  }
+
+  ForwardOpenRequest(bool use_legacy_forward_open_request)
+    : use_legacy_forward_open_request(use_legacy_forward_open_request)
+  {
+  }
+
   /**
-   * Helper to calculate connection parameters
+   * Helper to calculate connection parameters for current 32 bit connection parameters
    * @param size Maximum size of the messages in the connection in byte
    * @param variable if set to true, variable message sizes
    * @param priority Priority value for the connection
@@ -97,12 +111,34 @@ public:
   }
 
   /**
+   * Helper to calculate connection parameters for legacy 16 bit connection parameters
+   * @param size Maximum size of the messages in the connection in byte
+   * @param variable if set to true, variable message sizes
+   * @param priority Priority value for the connection
+   * @param type Connection type / class info
+   * @param shared If set to true, then a shared connection
+   */
+  static EIP_WORD calcConnectionParamsLegacy(EIP_UINT size, bool variable, EIP_BYTE priority,
+    EIP_BYTE type, bool shared)
+  {
+    return (size & 0x1FF) | (variable ? 0x200 : 0) | (priority & 0x03) << 10
+      | (type & 0x03) << 13 | (shared ? 0x8000 : 0);
+  }
+
+  /**
    * Shortcut to set the origin to target parameters.
    */
   EIP_DWORD setOriginToTargetParams(EIP_UINT size, bool variable, EIP_BYTE priority,
     EIP_BYTE type, bool shared)
   {
-    o_to_t_conn_params = calcConnectionParams(size, variable, priority, type, shared);
+    if (use_legacy_forward_open_request)
+    {
+      o_to_t_conn_params_legacy = calcConnectionParamsLegacy(size, variable, priority, type, shared);
+    }
+    else
+    {
+      o_to_t_conn_params = calcConnectionParams(size, variable, priority, type, shared);
+    }
     return 0;
   }
 
@@ -112,7 +148,14 @@ public:
   EIP_DWORD setTargetToOriginParams(EIP_UINT size, bool variable, EIP_BYTE priority,
     EIP_BYTE type, bool shared)
   {
-    t_to_o_conn_params = calcConnectionParams(size, variable, priority, type, shared);
+    if (use_legacy_forward_open_request)
+    {
+      t_to_o_conn_params_legacy = calcConnectionParamsLegacy(size, variable, priority, type, shared);
+    }
+    else
+    {
+      t_to_o_conn_params = calcConnectionParams(size, variable, priority, type, shared);
+    }
     return 0;
   }
 
@@ -131,21 +174,36 @@ public:
    */
   virtual size_t getLength() const
   {
-    return sizeof(timeout_tick_size)
-          + sizeof(timeout_ticks)
-          + sizeof(o_to_t_connection_id)
-          + sizeof(t_to_o_connection_id)
-          + sizeof(connection_sn)
-          + sizeof(originator_vendor_id)
-          + sizeof(originator_sn)
-          + sizeof(timeout_multiplyer)
-          + sizeof(o_to_t_rpi)
-          + sizeof(o_to_t_conn_params)
-          + sizeof(t_to_o_rpi)
-          + sizeof(t_to_o_conn_params)
-          + sizeof(conn_type)
-          + 3 // reserved bytes
-          + path_.getLength();
+    size_t ret = sizeof(timeout_tick_size);
+    ret += sizeof(timeout_ticks);
+    ret += sizeof(o_to_t_connection_id);
+    ret += sizeof(t_to_o_connection_id);
+    ret += sizeof(connection_sn);
+    ret += sizeof(originator_vendor_id);
+    ret += sizeof(originator_sn);
+    ret += sizeof(timeout_multiplyer);
+    ret += sizeof(o_to_t_rpi);
+    if (use_legacy_forward_open_request)
+    {
+      ret += sizeof(o_to_t_conn_params_legacy);
+    }
+    else
+    {
+      ret += sizeof(o_to_t_conn_params);
+    }
+    ret += sizeof(t_to_o_rpi);
+    if (use_legacy_forward_open_request)
+    {
+      ret += sizeof(t_to_o_conn_params_legacy);
+    }
+    else
+    {
+      ret += sizeof(t_to_o_conn_params);
+    }
+    ret += sizeof(conn_type);
+    ret += 3; // reserved bytes
+    ret += path_.getLength();
+    return ret;
   }
 
   /**
@@ -169,9 +227,23 @@ public:
     writer.write(reserved);
     writer.write(reserved);
     writer.write(o_to_t_rpi);
-    writer.write(o_to_t_conn_params);
+    if (use_legacy_forward_open_request)
+    {
+      writer.write(o_to_t_conn_params_legacy);
+    }
+    else
+    {
+      writer.write(o_to_t_conn_params);
+    }
     writer.write(t_to_o_rpi);
-    writer.write(t_to_o_conn_params);
+    if (use_legacy_forward_open_request)
+    {
+      writer.write(t_to_o_conn_params_legacy);
+    }
+    else
+    {
+      writer.write(t_to_o_conn_params);
+    }
     writer.write(conn_type);
     path_.serialize(writer);
     return writer;
